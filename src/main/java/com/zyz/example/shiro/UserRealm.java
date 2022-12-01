@@ -1,14 +1,18 @@
 package com.zyz.example.shiro;
 
-import com.zyz.example.constants.StateCode;
+import com.zyz.example.constants.AdminConstants;
 import com.zyz.example.entity.SysResource;
+import com.zyz.example.entity.SysRole;
 import com.zyz.example.entity.SysUser;
 import com.zyz.example.service.SysResourceService;
+import com.zyz.example.service.SysRoleService;
 import com.zyz.example.service.SysUserService;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
+import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +25,9 @@ public class UserRealm extends AuthorizingRealm {
 
     @Resource
     private SysUserService sysUserService;
+
+    @Resource
+    private SysRoleService sysRoleService;
     
     @Resource
     private SysResourceService sysResourceService;
@@ -32,15 +39,20 @@ public class UserRealm extends AuthorizingRealm {
      */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
-        String userName = (String) principalCollection.getPrimaryPrincipal();
+        Session session = SecurityUtils.getSubject().getSession();
+        SysUser sysUser = (SysUser) session.getAttribute(AdminConstants.SESSION_USER_INFO);
 
-        SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
-        List<SysResource> list = sysResourceService.getSysResourceCacheByUserName(userName);
-        for (SysResource sysResource : list) {
-            simpleAuthorizationInfo.addStringPermission(sysResource.getCode());
+        SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
+        List<SysRole> roleList = sysRoleService.getRoleCacheByUserId(sysUser.getId());
+        for (SysRole sysRole : roleList) {
+            info.addRole(sysRole.getEnName());
+            List<SysResource> list = sysResourceService.getSysResourceCacheByRoleId(sysRole.getId());
+            for (SysResource sysResource : list) {
+                info.addStringPermission(sysResource.getCode());
+            }
         }
 
-        return simpleAuthorizationInfo;
+        return info;
     }
 
 

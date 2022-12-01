@@ -34,7 +34,7 @@ public class LoginController {
             return ApiResponse.error(StateCode.ILLEGAL_PARAM);
         }
 
-        // 查询redis是否存在该用户登录令牌，存在则代表登录过，刷新登录有效期
+        // 查询redis是否存在该用户登录令牌，存在则代表登录过，刷新登录有效期(暂时不做)
 
 
         UsernamePasswordToken token = new UsernamePasswordToken(userName, password);
@@ -61,9 +61,4 @@ public class LoginController {
         return ApiResponse.ok();
     }
 
-    @RequestMapping("test")
-    public ApiResponse test() {
-
-        return ApiResponse.ok(1111111111);
-    }
 }

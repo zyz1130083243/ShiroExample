@@ -13,7 +13,7 @@ public class SysResourceService {
     @Resource
     private SysResourceMapper sysResourceMapper;
 
-    public List<SysResource> getSysResourceCacheByUserName(String userName) {
+    public List<SysResource> getSysResourceCacheByRoleId(Long roleId) {
         // 从缓存获取
 
 
